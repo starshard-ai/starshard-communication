@@ -105,7 +105,7 @@ verifiable artifact (commit / file / demo output).
 
 | Date | Shipped | Artifact |
 |------|---------|----------|
-| 2026-06-xx | Repo bootstrapped: README + SPEC-0001 + reference router + examples | this commit |
+| 2026-06-11 | Repo published: README (whitepaper-in-one-page) + SPEC-0001 + reference router + envelope/receipt examples + Apache-2.0 | first public commit (`2fa9962`) |
 
 > Build-in-public convention: every substantive change appends one row here with
 > a link to the commit or artifact, so the protocol's evolution is itself

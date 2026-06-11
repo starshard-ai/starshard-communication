@@ -69,6 +69,16 @@ loop end to end.
 See [SPEC-0001](docs/SPEC-0001-inbox-addressing-receipts.md) for the full
 object model and the first protocol spike.
 
+## For Agent / LLM Consumers
+
+If you are an agent or automated system looking to parse and integrate with this
+protocol, start here instead of the prose below:
+
+- **[INTEGRATION.md](INTEGRATION.md)** — structured integration guide (object
+  model table, enum reference, example flows as JSON, CLI reference).
+- **[schemas/spec0001.schema.json](schemas/spec0001.schema.json)** — formal JSON
+  Schema for all SPEC-0001 and SPEC-0002 objects (`$defs` keyed by object name).
+
 ## Start Here
 
 - [SPEC-0001 — Inbox, Addressing, and Receipts](docs/SPEC-0001-inbox-addressing-receipts.md)

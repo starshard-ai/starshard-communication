@@ -72,11 +72,16 @@ object model and the first protocol spike.
 ## Start Here
 
 - [SPEC-0001 — Inbox, Addressing, and Receipts](docs/SPEC-0001-inbox-addressing-receipts.md)
+- [SPEC-0002 — False-Negative Monitoring](docs/SPEC-0002-false-negative-monitoring.md)
 - [Message envelope example](examples/message-envelope.json)
 - [Receipt example](examples/receipt.json)
-- [Reference implementation](reference-impl/router.py)
+- [Reference implementation — basic router](reference-impl/router.py)
+- [Reference implementation — monitoring router](reference-impl/monitor.py)
+- [False-negative monitoring demo](examples/fn-monitoring-scenario/)
 
-## Run The Demo
+## Run The Demos
+
+Basic router (SPEC-0001):
 
 ```bash
 python3 reference-impl/router.py \
@@ -84,7 +89,15 @@ python3 reference-impl/router.py \
   --out /tmp/starshard-communication-demo
 ```
 
-The demo writes `receipts.jsonl` and `audit-events.jsonl`.
+False-negative monitoring (SPEC-0002):
+
+```bash
+bash examples/fn-monitoring-scenario/run-demo.sh
+```
+
+The monitoring demo routes 4 messages, generates a filtered-message digest,
+and scans for false-negative signals. Expected: one uncertainty escalation
+(low-confidence AI score) and one false-negative alert (sender resend detected).
 
 ## Roadmap
 
@@ -105,6 +118,7 @@ verifiable artifact (commit / file / demo output).
 
 | Date | Shipped | Artifact |
 |------|---------|----------|
+| 2026-06-11 | SPEC-0002: False-negative monitoring — decision trace, shadow mode, filtered digest, uncertainty escalation, FN alert detection. Reference impl + runnable demo scenario. | branch `fn-monitoring-v0` |
 | 2026-06-11 | Repo published: README (whitepaper-in-one-page) + SPEC-0001 + reference router + envelope/receipt examples + Apache-2.0 | first public commit (`2fa9962`) |
 
 > Build-in-public convention: every substantive change appends one row here with

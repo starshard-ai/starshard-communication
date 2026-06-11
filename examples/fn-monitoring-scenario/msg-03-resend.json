@@ -1,0 +1,22 @@
+{
+  "message_id": "msg_20260611_0003",
+  "created_at": "2026-06-11T12:00:00Z",
+  "from": {
+    "scheme": "email",
+    "address": "colleague@example.com"
+  },
+  "to": {
+    "scheme": "agent-endpoint",
+    "address": "owner@example.net"
+  },
+  "channel": "email",
+  "subject": "Re: Quick question about the meeting tomorrow",
+  "body": "Hey, just following up — are we still on for the 2pm meeting tomorrow? Need to know about the slides.",
+  "attachments": [],
+  "declared_urgency": "normal",
+  "metadata": {
+    "ai_score": 0.40,
+    "ai_confidence": 0.68,
+    "threshold_applied": 0.5
+  }
+}

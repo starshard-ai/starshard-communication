@@ -1,0 +1,18 @@
+{
+  "message_id": "msg_20260611_0002",
+  "created_at": "2026-06-11T09:00:00Z",
+  "from": {
+    "scheme": "email",
+    "address": "person@example.com"
+  },
+  "to": {
+    "scheme": "agent-endpoint",
+    "address": "owner@example.net"
+  },
+  "channel": "email",
+  "subject": "Project update",
+  "body": "Here's the latest status on the project.",
+  "attachments": [],
+  "declared_urgency": "normal",
+  "metadata": {}
+}

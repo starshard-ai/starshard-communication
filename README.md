@@ -69,14 +69,29 @@ loop end to end.
 See [SPEC-0001](docs/SPEC-0001-inbox-addressing-receipts.md) for the full
 object model and the first protocol spike.
 
+## For Agent / LLM Consumers
+
+If you are an agent or automated system looking to parse and integrate with this
+protocol, start here instead of the prose below:
+
+- **[INTEGRATION.md](INTEGRATION.md)** — structured integration guide (object
+  model table, enum reference, example flows as JSON, CLI reference).
+- **[schemas/spec0001.schema.json](schemas/spec0001.schema.json)** — formal JSON
+  Schema for all SPEC-0001 and SPEC-0002 objects (`$defs` keyed by object name).
+
 ## Start Here
 
 - [SPEC-0001 — Inbox, Addressing, and Receipts](docs/SPEC-0001-inbox-addressing-receipts.md)
+- [SPEC-0002 — False-Negative Monitoring](docs/SPEC-0002-false-negative-monitoring.md)
 - [Message envelope example](examples/message-envelope.json)
 - [Receipt example](examples/receipt.json)
-- [Reference implementation](reference-impl/router.py)
+- [Reference implementation — basic router](reference-impl/router.py)
+- [Reference implementation — monitoring router](reference-impl/monitor.py)
+- [False-negative monitoring demo](examples/fn-monitoring-scenario/)
 
-## Run The Demo
+## Run The Demos
+
+Basic router (SPEC-0001):
 
 ```bash
 python3 reference-impl/router.py \
@@ -84,19 +99,35 @@ python3 reference-impl/router.py \
   --out /tmp/starshard-communication-demo
 ```
 
-The demo writes `receipts.jsonl` and `audit-events.jsonl`.
+False-negative monitoring (SPEC-0002):
+
+```bash
+bash examples/fn-monitoring-scenario/run-demo.sh
+```
+
+The monitoring demo routes 4 messages, generates a filtered-message digest,
+and scans for false-negative signals. Expected: one uncertainty escalation
+(low-confidence AI score) and one false-negative alert (sender resend detected).
 
 ## Roadmap
 
-- **v0 (now)** — protocol draft (SPEC-0001), envelope/receipt shapes, single
-  reference router, public build log.
-- **v0.1** — one real adapter end-to-end (email or webhook → identity → policy →
-  receipt → audit).
-- **v0.2** — second adapter; demonstrate transport-neutrality across two channels.
-- **v0.3** — trust-tier policy examples + digest surface.
-- **later** — optional extension points: memory persistence, task ledger,
-  public/friends agents, contact-graph sync, cross-device notification surfaces.
-  Each is strictly additive; the thin layer never depends on them.
+See **[ROADMAP.md](ROADMAP.md)** for the full displacement strategy, per-stage
+risk analysis, falsifiers, and open questions.
+
+Summary:
+
+- **Stage 0 (now)** — protocol draft (SPEC-0001 + SPEC-0002), reference router,
+  public build log.
+- **Stage 1** — first real adapter end-to-end (email or webhook → identity →
+  policy → receipt → audit).
+- **Stage 2** — second adapter; demonstrate transport-neutrality.
+- **Stage 3** — selective attention + digest surface.
+- **Stage 4** — agent does the work (MCP/webhook task execution from messages).
+- **Stage 5** — work-comms migration (small self-selecting teams).
+- **Stage 6** — super-app dependence decline (uncertain; project designed so
+  Stages 0-5 stand alone without this).
+
+Each stage is independently valuable. Later stages are not assumed.
 
 ## Progress Log
 
@@ -105,6 +136,7 @@ verifiable artifact (commit / file / demo output).
 
 | Date | Shipped | Artifact |
 |------|---------|----------|
+| 2026-06-11 | SPEC-0002: False-negative monitoring — decision trace, shadow mode, filtered digest, uncertainty escalation, FN alert detection. Reference impl + runnable demo scenario. | branch `fn-monitoring-v0` |
 | 2026-06-11 | Repo published: README (whitepaper-in-one-page) + SPEC-0001 + reference router + envelope/receipt examples + Apache-2.0 | first public commit (`2fa9962`) |
 
 > Build-in-public convention: every substantive change appends one row here with

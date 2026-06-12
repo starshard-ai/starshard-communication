@@ -1,0 +1,433 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/starshard-ai/starshard-communication/schemas/spec0001.schema.json",
+  "title": "Starshard Communication SPEC-0001 Object Model",
+  "description": "Formal schema for SPEC-0001 (Inbox, Addressing, Receipts) and SPEC-0002 (False-Negative Monitoring) core objects.",
+  "$defs": {
+    "EndpointAddress": {
+      "type": "object",
+      "description": "A channel-qualified address for a contact or agent endpoint.",
+      "properties": {
+        "scheme": {
+          "type": "string",
+          "description": "Transport scheme identifier.",
+          "examples": ["email", "agent-endpoint", "webhook", "matrix", "simplex", "activitypub", "mcp"]
+        },
+        "address": {
+          "type": "string",
+          "description": "The address within the scheme (email address, URL, matrix ID, etc.)."
+        }
+      },
+      "required": ["scheme", "address"],
+      "additionalProperties": false
+    },
+
+    "ContactIdentity": {
+      "type": "object",
+      "description": "A known contact with one or more endpoint addresses and a locally-assigned trust tier.",
+      "properties": {
+        "contact_id": {
+          "type": "string",
+          "description": "Locally unique identifier for this contact."
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "endpoints": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/EndpointAddress" },
+          "minItems": 1
+        },
+        "trust_tier": {
+          "$ref": "#/$defs/TrustTier"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["contact_id", "endpoints", "trust_tier"],
+      "additionalProperties": false
+    },
+
+    "TrustTier": {
+      "type": "string",
+      "description": "Recipient-local trust classification. Does not claim global truth about a relationship.",
+      "enum": ["direct", "priority", "standard", "public", "blocked"]
+    },
+
+    "DeclaredUrgency": {
+      "type": "string",
+      "description": "Sender-declared urgency level (advisory, not authoritative).",
+      "enum": ["low", "normal", "high", "critical"]
+    },
+
+    "MessageEnvelope": {
+      "type": "object",
+      "description": "The canonical inbound message unit. Transport-neutral wrapper.",
+      "properties": {
+        "message_id": {
+          "type": "string",
+          "description": "Globally unique message identifier. Convention: msg_YYYYMMDD_NNNN."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 timestamp of message creation."
+        },
+        "from": {
+          "$ref": "#/$defs/EndpointAddress",
+          "description": "Sender endpoint."
+        },
+        "to": {
+          "$ref": "#/$defs/EndpointAddress",
+          "description": "Recipient endpoint."
+        },
+        "channel": {
+          "type": "string",
+          "description": "Transport channel name (email, webhook, matrix, etc.)."
+        },
+        "subject": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "attachments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "default": []
+        },
+        "declared_urgency": {
+          "$ref": "#/$defs/DeclaredUrgency",
+          "default": "normal"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Extensible metadata. SPEC-0002 uses ai_score, ai_confidence, threshold_applied here.",
+          "properties": {
+            "ai_score": {
+              "type": ["number", "null"],
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "description": "AI-assigned importance score. Null if no AI scoring."
+            },
+            "ai_confidence": {
+              "type": ["number", "null"],
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "description": "AI self-reported confidence. Null if no AI scoring."
+            },
+            "threshold_applied": {
+              "type": ["number", "null"],
+              "description": "Cutoff used for tier boundary."
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["message_id", "created_at", "from", "to", "channel", "body"],
+      "additionalProperties": false
+    },
+
+    "ReceiptState": {
+      "type": "string",
+      "description": "Lifecycle state of a receipt.",
+      "enum": [
+        "received",
+        "routed",
+        "surfaced",
+        "digested",
+        "task_created",
+        "replied",
+        "delegated",
+        "blocked",
+        "handled",
+        "failed"
+      ]
+    },
+
+    "Receipt": {
+      "type": "object",
+      "description": "Lifecycle receipt for a routed message. Not just 'delivered' -- tracks full state.",
+      "properties": {
+        "receipt_id": {
+          "type": "string",
+          "description": "Unique receipt ID. Convention: rcpt_{message_id}."
+        },
+        "message_id": {
+          "type": "string",
+          "description": "The MessageEnvelope this receipt covers."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "state": {
+          "$ref": "#/$defs/ReceiptState"
+        },
+        "state_detail": {
+          "type": ["string", "null"],
+          "description": "Human-readable detail about the state."
+        },
+        "actor": {
+          "type": "string",
+          "description": "Who/what produced this receipt (e.g. recipient_agent)."
+        },
+        "next_expected_event": {
+          "type": ["string", "null"],
+          "description": "What should happen next, if anything."
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "trust_tier": { "$ref": "#/$defs/TrustTier" },
+            "decision_trace_id": {
+              "type": "string",
+              "description": "SPEC-0002: backlink to DecisionTrace."
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["receipt_id", "message_id", "created_at", "state", "actor"],
+      "additionalProperties": false
+    },
+
+    "AuditEventType": {
+      "type": "string",
+      "description": "Type of audit event.",
+      "enum": [
+        "message_routed",
+        "receipt_written",
+        "false_negative_suspected",
+        "uncertainty_escalated",
+        "shadow_mode_comparison",
+        "filtered_digest_generated"
+      ]
+    },
+
+    "AuditEvent": {
+      "type": "object",
+      "description": "Every routing decision is locally auditable via this event.",
+      "properties": {
+        "audit_id": {
+          "type": "string",
+          "description": "Unique audit event ID."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "event_type": {
+          "$ref": "#/$defs/AuditEventType"
+        },
+        "message_id": {
+          "type": "string"
+        },
+        "receipt_id": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "trigger": {
+          "type": "string",
+          "description": "SPEC-0002: what triggered a false_negative_suspected event.",
+          "enum": ["resend_detected", "escalation_path_used", "multi_channel_detected", "third_party_relay"]
+        },
+        "trigger_message_id": {
+          "type": "string",
+          "description": "SPEC-0002: the message that triggered the alert."
+        },
+        "original_trace_id": {
+          "type": "string",
+          "description": "SPEC-0002: backlink to the original DecisionTrace."
+        }
+      },
+      "required": ["audit_id", "created_at", "event_type", "message_id", "actor", "summary"],
+      "additionalProperties": false
+    },
+
+    "TierAction": {
+      "type": "string",
+      "description": "An action the agent takes for a given tier.",
+      "enum": [
+        "deliver_now",
+        "classify",
+        "surface_soon",
+        "digest",
+        "route_public_agent",
+        "write_receipt",
+        "audit_only"
+      ]
+    },
+
+    "MonitoringConfig": {
+      "type": "object",
+      "description": "SPEC-0002: monitoring configuration within AgentPolicy.",
+      "properties": {
+        "shadow_mode": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, AI routing decisions are logged but overridden by safe fallback."
+        },
+        "uncertainty_threshold": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.6,
+          "description": "AI confidence below this triggers escalation one tier toward direct."
+        },
+        "digest_interval_hours": {
+          "type": "number",
+          "default": 12,
+          "description": "How often to generate FilteredDigest."
+        },
+        "fn_lookback_hours": {
+          "type": "number",
+          "default": 48,
+          "description": "Time window for false-negative signal detection."
+        },
+        "fn_similarity_threshold": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.7,
+          "description": "Similarity threshold for resend detection."
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "AgentPolicy": {
+      "type": "object",
+      "description": "Per-user routing policy. Maps trust tiers to agent actions.",
+      "properties": {
+        "policy_id": {
+          "type": "string"
+        },
+        "recipient_user_id": {
+          "type": "string"
+        },
+        "default_tier": {
+          "$ref": "#/$defs/TrustTier",
+          "default": "standard"
+        },
+        "tier_actions": {
+          "type": "object",
+          "description": "Map from TrustTier to list of actions.",
+          "propertyNames": { "$ref": "#/$defs/TrustTier" },
+          "additionalProperties": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/TierAction" }
+          }
+        },
+        "monitoring": {
+          "$ref": "#/$defs/MonitoringConfig",
+          "description": "SPEC-0002 monitoring configuration. Optional."
+        }
+      },
+      "required": ["policy_id", "recipient_user_id", "default_tier", "tier_actions"],
+      "additionalProperties": false
+    },
+
+    "DecisionTrace": {
+      "type": "object",
+      "description": "SPEC-0002: structured per-message routing decision record.",
+      "properties": {
+        "trace_id": {
+          "type": "string",
+          "description": "Convention: dtrace_{message_id}."
+        },
+        "message_id": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "message_created_at": { "type": "string", "format": "date-time" },
+        "sender": { "type": "string" },
+        "subject": { "type": "string" },
+        "ai_score": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "ai_confidence": {
+          "type": ["number", "null"],
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "threshold_applied": { "type": ["number", "null"] },
+        "tier_assigned": { "$ref": "#/$defs/TrustTier" },
+        "tier_source": {
+          "type": "string",
+          "enum": ["policy_lookup", "ai_classification", "uncertainty_escalation", "manual_override"]
+        },
+        "routing_outcome": { "$ref": "#/$defs/ReceiptState" },
+        "receipt_id": { "type": "string" },
+        "shadow_mode": { "type": "boolean" },
+        "shadow_outcome": { "type": ["string", "null"] },
+        "flags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["uncertainty_escalated", "false_negative_suspect", "resend_detected", "escalation_path_used", "multi_channel_detected", "third_party_relay"]
+          }
+        }
+      },
+      "required": ["trace_id", "message_id", "created_at", "sender", "tier_assigned", "tier_source", "routing_outcome", "receipt_id", "shadow_mode", "flags"],
+      "additionalProperties": false
+    },
+
+    "FilteredDigestItem": {
+      "type": "object",
+      "properties": {
+        "message_id": { "type": "string" },
+        "sender": { "type": "string" },
+        "subject": { "type": "string" },
+        "tier_assigned": { "$ref": "#/$defs/TrustTier" },
+        "ai_score": { "type": ["number", "null"] },
+        "ai_confidence": { "type": ["number", "null"] },
+        "flags": { "type": "array", "items": { "type": "string" } },
+        "human_verdict": {
+          "type": ["string", "null"],
+          "enum": ["correct", "should_have_surfaced", "should_have_blocked", null]
+        }
+      },
+      "required": ["message_id", "sender", "subject", "tier_assigned", "flags", "human_verdict"],
+      "additionalProperties": false
+    },
+
+    "FilteredDigest": {
+      "type": "object",
+      "description": "SPEC-0002: periodic summary of suppressed messages for human review.",
+      "properties": {
+        "digest_id": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "period_start": { "type": "string", "format": "date-time" },
+        "period_end": { "type": "string", "format": "date-time" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/FilteredDigestItem" }
+        },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "total_filtered": { "type": "integer" },
+            "total_passed": { "type": "integer" },
+            "uncertainty_escalations": { "type": "integer" },
+            "false_negative_suspects": { "type": "integer" }
+          },
+          "required": ["total_filtered", "total_passed", "uncertainty_escalations", "false_negative_suspects"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["digest_id", "created_at", "period_start", "period_end", "items", "stats"],
+      "additionalProperties": false
+    }
+  }
+}

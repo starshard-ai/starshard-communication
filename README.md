@@ -111,15 +111,23 @@ and scans for false-negative signals. Expected: one uncertainty escalation
 
 ## Roadmap
 
-- **v0 (now)** — protocol draft (SPEC-0001), envelope/receipt shapes, single
-  reference router, public build log.
-- **v0.1** — one real adapter end-to-end (email or webhook → identity → policy →
-  receipt → audit).
-- **v0.2** — second adapter; demonstrate transport-neutrality across two channels.
-- **v0.3** — trust-tier policy examples + digest surface.
-- **later** — optional extension points: memory persistence, task ledger,
-  public/friends agents, contact-graph sync, cross-device notification surfaces.
-  Each is strictly additive; the thin layer never depends on them.
+See **[ROADMAP.md](ROADMAP.md)** for the full displacement strategy, per-stage
+risk analysis, falsifiers, and open questions.
+
+Summary:
+
+- **Stage 0 (now)** — protocol draft (SPEC-0001 + SPEC-0002), reference router,
+  public build log.
+- **Stage 1** — first real adapter end-to-end (email or webhook → identity →
+  policy → receipt → audit).
+- **Stage 2** — second adapter; demonstrate transport-neutrality.
+- **Stage 3** — selective attention + digest surface.
+- **Stage 4** — agent does the work (MCP/webhook task execution from messages).
+- **Stage 5** — work-comms migration (small self-selecting teams).
+- **Stage 6** — super-app dependence decline (uncertain; project designed so
+  Stages 0-5 stand alone without this).
+
+Each stage is independently valuable. Later stages are not assumed.
 
 ## Progress Log
 

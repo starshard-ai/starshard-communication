@@ -1,0 +1,26 @@
+{
+  "_comment": "SPEC-0003 §5.2 — a signed, offline-verifiable statement of what an agent may do on behalf of its human principal. Status: DESIGNED, not implemented. Identifiers are illustrative did:key placeholders.",
+  "typ": "authority-envelope/v0",
+  "iss": "did:key:z6MkPrincipalAlice",
+  "aud": "did:key:z6MkAgentAlice1",
+  "sub": "did:key:z6MkPrincipalAlice",
+  "nbf": "2026-08-22T00:00:00Z",
+  "exp": "2026-08-23T00:00:00Z",
+  "nonce": "b8f1c2d3e4a5b6c7",
+  "cmd": "/communication/send",
+  "pol": [
+    ["==", "$.namespace", "communication"],
+    ["<=", "$.risk_class_rank", 2],
+    ["in", "$.peer", ["did:key:z6MkAgentBob1"]],
+    ["<=", "$.count_per_day", 20]
+  ],
+  "non_delegable": [
+    "/identity/**",
+    "/finance/**",
+    "/infrastructure/dns/**",
+    "/infrastructure/billing/**",
+    "/publication/first_public_identity"
+  ],
+  "prf": [],
+  "sig": "<base64url Ed25519 signature over the canonicalized envelope by iss>"
+}

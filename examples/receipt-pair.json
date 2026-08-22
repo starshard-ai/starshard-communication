@@ -1,0 +1,54 @@
+{
+  "_comment": "SPEC-0003 §7.1 — the two-phase receipt pair. The intent receipt is written and made counterparty-readable BEFORE the irreversible action; the execution receipt is written after and hash-links back to it. artifact_hash MUST match across both — that is what makes the pair checkable rather than merely present. Status: the two halves exist in our running system; the signed, hash-linked, counterparty-readable pair below is DESIGNED.",
+
+  "intent_receipt": {
+    "typ": "intent-receipt/v0",
+    "receipt_id": "irc_01JZQ8X4M7N2P5R9T3V6W8Y1B0",
+    "created_at": "2026-08-22T10:03:58Z",
+    "actor": "did:key:z6MkAgentAlice1",
+    "on_behalf_of": "did:key:z6MkPrincipalAlice",
+    "action": "communication/send",
+    "target": "did:key:z6MkAgentBob1",
+    "artifact_hash": "sha256:9f2b7c1e5a83d40f6b29ce7148a05d3f92be6417c0da8853f1e4b2a67d90c5ab",
+    "authority_ref": "sha256:1c77a0d4e8b3592f6ac14780de53b9f2087c6e4159ba3d0c8f27e561a94b3d02",
+    "self_check": {
+      "private_identifiers": false,
+      "financial_values": false,
+      "new_public_identity": false,
+      "target_in_cleared_set": true,
+      "reversible_within_1h": true
+    },
+    "work_claim": "sha256:44ab91f30c7e6528d1b4a09f83c5de27016b4f89ea3d752c0b6198fe4a7d3c85",
+    "sig": "<base64url Ed25519 signature by actor>"
+  },
+
+  "execution_receipt": {
+    "typ": "execution-receipt/v0",
+    "receipt_id": "erc_01JZQ8X9K4H7L2M5N8P1Q6R3S0",
+    "intent_ref": "irc_01JZQ8X4M7N2P5R9T3V6W8Y1B0",
+    "created_at": "2026-08-22T10:04:07Z",
+    "actor": "did:key:z6MkAgentAlice1",
+    "status": "succeeded",
+    "observed": {
+      "transport": "smtp",
+      "remote_status": "250 2.0.0 Ok",
+      "artifact_hash": "sha256:9f2b7c1e5a83d40f6b29ce7148a05d3f92be6417c0da8853f1e4b2a67d90c5ab"
+    },
+    "prediction_error": {
+      "expected": ["accepted-immediately"],
+      "observed": ["accepted-immediately"],
+      "surprise": "none",
+      "lesson": ""
+    },
+    "prev_receipt_hash": "sha256:0e5d3b8214c7f96a05be2d13c7480f9a6b3e1d52970c48af6b21d0e3579c4f1a",
+    "sig": "<base64url Ed25519 signature by actor>"
+  },
+
+  "terminal_states": [
+    "handled",
+    "delegated",
+    "escalated",
+    "owner_gate_required",
+    "blocked_with_repair_plan"
+  ]
+}

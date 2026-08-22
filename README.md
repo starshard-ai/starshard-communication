@@ -31,6 +31,9 @@ workflows are all extensions. The first protocol should work without any of them
 - Not a hosted service.
 - Not a new cryptographic protocol — transport security reuses established
   protocols and libraries (Matrix/MLS, Signal Protocol, TLS, mail/webhook patterns).
+  [SPEC-0003](docs/SPEC-0003-agent-identity-authentication-and-secure-messaging.md)
+  spells out exactly which established standards, at which maturity level, and how
+  they compose — it composes, it does not invent.
 - Not a chat-app clone.
 - Not a platform scraper.
 - Not a claim that every private message should be read by an AI.
@@ -79,12 +82,49 @@ protocol, start here instead of the prose below:
 - **[schemas/spec0001.schema.json](schemas/spec0001.schema.json)** — formal JSON
   Schema for all SPEC-0001 and SPEC-0002 objects (`$defs` keyed by object name).
 
+## Agent-to-Agent Identity and Secure Messaging (SPEC-0003)
+
+SPEC-0001 and SPEC-0002 cover messages arriving at *a human's* agent.
+**[SPEC-0003](docs/SPEC-0003-agent-identity-authentication-and-secure-messaging.md)**
+covers the other direction, and is the longest document here:
+
+> **How do two agents, belonging to two different people, on two different machines,
+> with no shared platform and no common identity provider, authenticate each other,
+> verify what each is allowed to do on its human's behalf, and exchange messages that
+> survive being offline, duplicated, replayed, or observed?**
+
+It covers: agent identity as a keypair (`did:key` vs `did:web` vs X.509/SPIFFE, with
+a correction — `did:key` and `did:web` are **W3C Community Group drafts, not
+Recommendations**); the principal / agent / host identity triple; key rotation, device
+loss, and why revocation fundamentally fights offline verifiability; **the agent-fork
+problem**, which we consider unsolved by anyone; mutual authentication with Noise `XX`
+and `IK`; preventing an agent from impersonating its own principal; a
+**machine-readable, offline-verifiable authority envelope** with attenuation-only
+delegation and a structurally-enforced non-delegable set; why Signal, email, and
+platform DMs each cannot be the whole answer; store-and-forward commit sequencing,
+idempotency, and replay protection; **two-phase receipts** (intent before, execution
+after, hash-linked) and why one is not enough; a correction to our own shipped
+work-claim design, which is **not sound across a trust boundary** because leases
+without fencing tokens do not stop a stale holder; and a ten-item list of what we have
+**not** solved.
+
+Every claim carries a confidence badge: ✅ RUNNING / 🔵 DESIGNED / 🟡 CONJECTURE /
+📚 CITED / ⚠️ OPEN. Every external standard is cited with its verified maturity level,
+because several of the most-cited "standards" in agent identity are not standards.
+
+中文：**没有中心化平台时,两个 agent 如何互相认证、如何用机器可读的方式表达"我被授权做什么"、
+如何安全异步传递消息。** 不发明新密码学,只组合已有标准,并诚实标注哪些已实现、哪些只是设计、
+哪些没解决。
+
 ## Start Here
 
 - [SPEC-0001 — Inbox, Addressing, and Receipts](docs/SPEC-0001-inbox-addressing-receipts.md)
 - [SPEC-0002 — False-Negative Monitoring](docs/SPEC-0002-false-negative-monitoring.md)
+- [**SPEC-0003 — Agent Identity, Authentication, and Secure Agent-to-Agent Messaging**](docs/SPEC-0003-agent-identity-authentication-and-secure-messaging.md)
 - [Message envelope example](examples/message-envelope.json)
 - [Receipt example](examples/receipt.json)
+- [Authority envelope example (SPEC-0003)](examples/authority-envelope.json)
+- [Two-phase receipt pair example (SPEC-0003)](examples/receipt-pair.json)
 - [Reference implementation — basic router](reference-impl/router.py)
 - [Reference implementation — monitoring router](reference-impl/monitor.py)
 - [False-negative monitoring demo](examples/fn-monitoring-scenario/)
@@ -136,6 +176,7 @@ verifiable artifact (commit / file / demo output).
 
 | Date | Shipped | Artifact |
 |------|---------|----------|
+| 2026-08-22 | SPEC-0003: Agent identity, authentication, and secure agent-to-agent messaging — identity triple, offline-verifiable authority envelope with attenuation-only delegation, two-phase receipts, a correction to our own work-claim design across trust boundaries, and 10 open problems. Standards cited with verified maturity levels. | [`docs/SPEC-0003-…`](docs/SPEC-0003-agent-identity-authentication-and-secure-messaging.md) + [`examples/authority-envelope.json`](examples/authority-envelope.json) + [`examples/receipt-pair.json`](examples/receipt-pair.json) |
 | 2026-06-11 | SPEC-0002: False-negative monitoring — decision trace, shadow mode, filtered digest, uncertainty escalation, FN alert detection. Reference impl + runnable demo scenario. | branch `fn-monitoring-v0` |
 | 2026-06-11 | Repo published: README (whitepaper-in-one-page) + SPEC-0001 + reference router + envelope/receipt examples + Apache-2.0 | first public commit (`2fa9962`) |
 

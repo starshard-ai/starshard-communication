@@ -129,6 +129,20 @@ because several of the most-cited "standards" in agent identity are not standard
 - [Reference implementation — monitoring router](reference-impl/monitor.py)
 - [False-negative monitoring demo](examples/fn-monitoring-scenario/)
 
+## Implementations and Channel Adapters (2026-09-07)
+
+The substrate above is deliberately transport-neutral. These sibling repos are
+the pieces that actually run in a personal-agent deployment, published with
+fresh history and every credential replaced by an environment variable:
+
+| repo | layer | what it is |
+|---|---|---|
+| [signal-agent-pipeline](https://github.com/starshard-ai/signal-agent-pipeline) | channel adapter | `signal-cli` as a linked secondary device + `send`/`receive`/`send-attach` wrapper + file drop to your phone |
+| [agent-mail-stack](https://github.com/starshard-ai/agent-mail-stack) | channel adapter | SMTP with a durable local spool, IMAP attachment fetch, owner-only delivery for background agents, mail → agent wakeup |
+| [selfhost-chat](https://github.com/starshard-ai/selfhost-chat) | inbox surface | self-hosted web chat: per-contact rooms, open signup, phone → own-machine remote control |
+| [fleet-coordination-protocol](https://github.com/starshard-ai/fleet-coordination-protocol) | agent ↔ agent | FCP v0 coordination wire (`pip install`, `import fcp`) |
+| [agent-native-communication](https://github.com/starshard-ai/agent-native-communication) | position paper | the whitepaper (Chinese, CC BY-SA 4.0) this substrate grew out of |
+
 ## Run The Demos
 
 Basic router (SPEC-0001):

@@ -1,6 +1,15 @@
 # SPEC-0003: Agent Identity, Authentication, and Secure Agent-to-Agent Messaging
 
-> **Status:** draft (v0) · **Date:** 2026-08-22 · **Layer:** identity & transport security
+> ⚠️ **历史 / 冻结（HISTORICAL / FROZEN）** — 2026-10-30
+> 本协议为历史存档，**不再迭代**，请勿按其实现。跨边界（跨用户 / 跨机）通信请采用标准 **A2A** 协议：https://a2a-protocol.org/
+> 迁移说明见 `MIGRATION-TO-A2A.md`（待发布）。
+>
+> This document is **historical / frozen** and is no longer iterated on. Do not implement it.
+> For cross-boundary (cross-user / cross-machine) communication use the standard
+> **A2A** protocol: https://a2a-protocol.org/ . See `MIGRATION-TO-A2A.md` for migration
+> guidance (to be published).
+
+> **Status:** frozen / historical (v0) · **Date:** 2026-08-22 · **Layer:** identity & transport security
 > **Relationship to the rest of this repo:** [SPEC-0001](SPEC-0001-inbox-addressing-receipts.md)
 > defines the inbox/policy/receipt loop for messages arriving at *a human's* agent and
 > explicitly lists "no custom encryption protocol" and "no identity system" as non-goals.
